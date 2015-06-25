@@ -74,8 +74,7 @@ sub child {
 	    "-I", $dir, "$dir/".basename($0), $self->{af},
 	    $self->{bindaddr}, $self->{connectaddr}, $self->{connectport},
 	    ($self->{bindport} ? $self->{bindport} : ()),
-	    ($self->{testfile} ? "$dir/".basename($self->{testfile}) :
-	    ()));
+	    ($self->{testfile} ? "$dir/".basename($self->{testfile}) : ()));
 	print STDERR "execute: @cmd\n";
 	$< = $>;
 	exec @cmd;
