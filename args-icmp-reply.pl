@@ -1,4 +1,4 @@
-# test divert-to with icmp
+# test divert-reply with icmp
 
 use strict;
 use warnings;
@@ -9,5 +9,5 @@ our %args = (
 	protocol => sub { shift->{af} eq "inet" ? "icmp" : "icmp6" },
 	client => { func => \&write_icmp_echo, out => "ICMP", noin => 1, },
 	server => { func => \&read_icmp_echo, in => "ICMP", noout => 1, },
-	divert => "to",
+	divert => "reply",
 );
