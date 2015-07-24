@@ -17,6 +17,7 @@
 use strict;
 use warnings;
 use Socket;
+use Socket6;
 
 ########################################################################
 # Client and Server funcs
@@ -50,16 +51,17 @@ sub read_datagram {
 	my $from = recv(STDIN, my $in, 70000, 0)
 	    or die ref($self), " recv failed: $!";
 	# Raw sockets include the IPv4 header.
-	if ($af eq "inet" && $self->{socktype} == Socket::SOCK_RAW) {
+	if ($self->{socktype} && $self->{socktype} == Socket::SOCK_RAW &&
+	    $af eq "inet") {
 		substr($in, 0, 20, "");
 	}
 
 	my ($port, $netaddr, $addr);
-	if ($self->{af} eq "inet") {
+	if ($af eq "inet") {
 		($port, $netaddr) = unpack_sockaddr_in($from);
 		$addr = inet_ntop(AF_INET, $netaddr);
 	} else {
-		($port, undef, $netaddr, undef) = unpack_sockaddr_in6($from);
+		($port, $netaddr) = unpack_sockaddr_in6($from);
 		$addr = inet_ntop(AF_INET6, $netaddr);
 	}
 	$self->{fromaddr} = $addr;
@@ -120,7 +122,7 @@ sub read_icmp_echo {
 
 	sysread(STDIN, my $icmp, 70000);
 	# Raw sockets include the IPv4 header.
-	if ($af eq "inet" && $self->{socktype} == Socket::SOCK_RAW) {
+	if ($af eq "inet") {
 		substr($icmp, 0, 20, "");
 	}
 
