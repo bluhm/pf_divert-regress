@@ -8,7 +8,7 @@ our %args = (
 	socktype => Socket::SOCK_RAW,
 	protocol => sub { shift->{af} eq "inet" ? "icmp" : "icmp6" },
 	client => {
-	    func => sub { 
+	    func => sub {
 		my $self = shift;
 		write_icmp_echo($self);
 		read_icmp_echo($self, "reply");
