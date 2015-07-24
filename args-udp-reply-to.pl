@@ -1,12 +1,11 @@
-# test divert-reply with raw ip
+# test divert-reply with udp with out and in packet
 
 use strict;
 use warnings;
 use Socket;
 
 our %args = (
-	socktype => Socket::SOCK_RAW,
-	protocol => 254,
+	protocol => "udp",
 	client => {
 	    func => sub {
 		my $self = shift;

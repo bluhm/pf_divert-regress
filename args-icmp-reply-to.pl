@@ -1,4 +1,4 @@
-# test divert-reply with icmp
+# test divert-reply with icmp with out and in packet
 
 use strict;
 use warnings;

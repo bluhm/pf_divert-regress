@@ -1,4 +1,4 @@
-# test divert-reply with raw ip
+# test divert-reply with raw ip with out and in packet
 
 use strict;
 use warnings;
