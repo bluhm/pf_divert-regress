@@ -46,6 +46,7 @@ sub write_datagram {
 
 sub read_datagram {
 	my $self = shift;
+	my $dgram = shift;
 	my $af = $self->{af};
 
 	my $from = recv(STDIN, my $in, 70000, 0)
@@ -68,7 +69,11 @@ sub read_datagram {
 	$self->{fromport} = $port;
 	print STDERR "recv from: $addr $port\n";
 
-	print STDERR "<<< $in";
+	if ($dgram) {
+		$$dgram = $in;
+	} else {
+		print STDERR "<<< $in";
+	}
 }
 
 sub in_cksum {
@@ -120,11 +125,8 @@ sub read_icmp_echo {
 	my $reply = shift;
 	my $af = $self->{af};
 
-	sysread(STDIN, my $icmp, 70000);
-	# Raw sockets include the IPv4 header.
-	if ($af eq "inet") {
-		substr($icmp, 0, 20, "");
-	}
+	my $icmp;
+	read_datagram($self, \$icmp);
 
 	my $text = $af eq "inet" ? "ICMP" : "ICMP6";
 	$text .= " reply" if $reply;
