@@ -82,7 +82,6 @@ if (@ARGV == 5 && $mode eq "auto") {
 }
 
 my($c, $l, $r, $s, $logfile);
-my $func	= \&write_read_stream;
 my $divert	= $args{divert} || "to";
 my $local	= $divert eq "to" ? "client" : "server";
 my $remote	= $divert eq "to" ? "server" : "client";
@@ -99,7 +98,6 @@ if ($mode eq "divert" xor $divert eq "reply") {
 
 if ($local eq "server") {
 	$l = $s = Server->new(
-	    func		=> $func,
 	    %args,
 	    %{$args{server}},
 	    logfile		=> $logfile,
@@ -133,7 +131,6 @@ if ($mode eq "auto") {
 }
 if ($local eq "client") {
 	$l = $c = Client->new(
-	    func		=> $func,
 	    %args,
 	    %{$args{client}},
 	    logfile		=> $logfile,
