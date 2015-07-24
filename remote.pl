@@ -109,7 +109,7 @@ if ($local eq "server") {
 	    listenport		=> $serverport || $bindport,
 	    srcaddr		=> $srcaddr,
 	    dstaddr		=> $dstaddr,
-	);
+	) if $args{server};
 }
 if ($mode eq "auto") {
 	$r = Remote->new(
@@ -144,9 +144,9 @@ if ($local eq "client") {
 	    bindport		=> $clientport || $bindport,
 	    srcaddr		=> $srcaddr,
 	    dstaddr		=> $dstaddr,
-	);
+	) if $args{client};
 }
-$l->{log}->print("local command: $command\n");
+$l->{log}->print("local command: $command\n") if $l;
 
 if ($mode eq "divert") {
 	open(my $log, '<', $l->{logfile})
