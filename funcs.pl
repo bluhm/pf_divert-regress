@@ -47,15 +47,23 @@ sub read_datagram {
 	my $skip = $self->{skip};
 	$skip = $skip->($self) if ref $skip eq 'CODE';
 
-	my $in;
-	if ($skip) {
-		# Raw sockets include the IPv4 header.
-		sysread(STDIN, $in, 70000);
-		# Cut the header off.
-		substr($in, 0, $skip, "");
+	my $from = recv(STDIN, my $in, 70000, 0)
+	    or die ref($self), " recv failed: $!";
+
+	my ($port, $netaddr, $addr);
+	if ($self->{af} eq "inet") {
+		($port, $netaddr) = unpack_sockaddr_in($from);
+		$addr = inet_ntop(AF_INET, $netaddr);
 	} else {
-		$in = <STDIN>;
+		($port, undef, $netaddr, undef) = unpack_sockaddr_in6($from);
+		$addr = inet_ntop(AF_INET6, $netaddr);
 	}
+	$self->{fromaddr} = $addr;
+	$self->{fromport} = $port;
+	print STDERR "recv from: $addr $port\n";
+
+	# Raw sockets include the IPv4 header.
+	substr($in, 0, $skip, "") if $skip;
 	print STDERR "<<< $in";
 }
 
