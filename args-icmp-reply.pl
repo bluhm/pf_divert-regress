@@ -13,8 +13,8 @@ our %args = (
 		write_icmp_echo($self);
 		read_icmp_echo($self, "reply");
 	    },
-	    out => "ICMP",
-	    in => "ICMP reply",
+	    out => "ICMP6?",
+	    in => "ICMP6? reply",
 	},
 	# no server as our kernel does the icmp reply automatically
 	divert => "reply",
