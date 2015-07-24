@@ -136,8 +136,7 @@ sub write_icmp_echo {
 		substr($icmp, 2, 2, pack("n", in_cksum($phdr. $icmp)));
 	}
 
-	print $icmp;
-	IO::Handle::flush(\*STDOUT);
+	write_datagram($self, $icmp);
 	my $text = $af eq "inet" ? "ICMP" : "ICMP6";
 	print STDERR ">>> $text ", unpack("H*", $icmp), "\n";
 }
