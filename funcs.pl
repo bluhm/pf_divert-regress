@@ -119,11 +119,12 @@ use constant ICMP6_ECHO_REPLY	=> 129;
 my $seq = 0;
 sub write_icmp_echo {
 	my $self = shift;
+	my $pid = shift || $$;
 	my $af = $self->{af};
 
 	my $type = $af eq "inet" ? ICMP_ECHO : ICMP6_ECHO_REQUEST;
 	# type, code, cksum, id, seq
-	my $icmp = pack("CCnnn", $type, 0, 0, $$, ++$seq);
+	my $icmp = pack("CCnnn", $type, 0, 0, $pid, ++$seq);
 	if ($af eq "inet") {
 		substr($icmp, 2, 2, pack("n", in_cksum($icmp)));
 	} else {

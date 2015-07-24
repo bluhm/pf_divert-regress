@@ -1,4 +1,4 @@
-# test divert-reply with icmp with out and in packet
+# test divert-reply with icmp and socket reuse
 
 use strict;
 use warnings;
@@ -10,7 +10,9 @@ our %args = (
 	client => {
 	    func => sub {
 		my $self = shift;
-		write_icmp_echo($self);
+		write_icmp_echo($self, $$);
+		read_icmp_echo($self, "reply");
+		write_icmp_echo($self, $$+1);
 		read_icmp_echo($self, "reply");
 	    },
 	    out => "ICMP6?",

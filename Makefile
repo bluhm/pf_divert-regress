@@ -60,6 +60,7 @@ TARGETS ?=		inet-args-tcp-to inet6-args-tcp-to \
 			inet-args-rip-reply-to inet6-args-rip-reply-to \
 			inet-args-icmp-to inet6-args-icmp-to \
 			inet-args-icmp-reply-to inet6-args-icmp-reply-to \
+			inet-args-icmp-reply-reuse inet6-args-icmp-reply-reuse \
 			inet-reuse-tcp inet6-reuse-tcp \
 			inet-reuse-udp inet6-reuse-udp \
 			inet-reuse-rip inet6-reuse-rip
