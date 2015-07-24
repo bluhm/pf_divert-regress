@@ -18,6 +18,8 @@ our %args = (
 	    func => sub {
 		my $self = shift;
 		read_datagram($self);
+		$self->{toaddr} = $self->{fromaddr};
+		$self->{toport} = $self->{fromport};
 		write_datagram($self);
 	    },
 	},
