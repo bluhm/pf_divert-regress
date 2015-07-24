@@ -37,28 +37,50 @@ sub write_read_stream {
 
 sub write_datagram {
 	my $self = shift;
+	my $dgram = shift;
 
-	my $out = ref($self). "\n";
-	print $out;
-	IO::Handle::flush(\*STDOUT);
-	print STDERR ">>> $out";
+	my $out = $dgram || ref($self). "\n";
+	my $addr = $self->{toaddr};
+	my $port = $self->{toport};
+	if ($addr) {
+		my ($to, $netaddr);
+		if ($self->{af} eq "inet") {
+			$netaddr = inet_pton(AF_INET, $addr);
+			$to = pack_sockaddr_in($port, $netaddr);
+		} else {
+			$netaddr = inet_pton(AF_INET6, $addr);
+			$to = pack_sockaddr_in6($port, $netaddr);
+		}
+		$self->{toaddr} = $addr;
+		$self->{toport} = $port;
+		print STDERR "send to: $addr $port\n";
+
+		send(STDIN, $out, 0, $to)
+		    or die ref($self), " send to failed: $!";
+	} else {
+		send(STDIN, $out, 0)
+		    or die ref($self), " send failed: $!";
+	}
+
+	unless ($dgram) {
+		print STDERR ">>> $out";
+	}
 }
 
 sub read_datagram {
 	my $self = shift;
 	my $dgram = shift;
-	my $af = $self->{af};
 
 	my $from = recv(STDIN, my $in, 70000, 0)
-	    or die ref($self), " recv failed: $!";
+	    or die ref($self), " recv from failed: $!";
 	# Raw sockets include the IPv4 header.
 	if ($self->{socktype} && $self->{socktype} == Socket::SOCK_RAW &&
-	    $af eq "inet") {
+	    $self->{af} eq "inet") {
 		substr($in, 0, 20, "");
 	}
 
 	my ($port, $netaddr, $addr);
-	if ($af eq "inet") {
+	if ($self->{af} eq "inet") {
 		($port, $netaddr) = unpack_sockaddr_in($from);
 		$addr = inet_ntop(AF_INET, $netaddr);
 	} else {
