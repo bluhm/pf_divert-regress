@@ -7,7 +7,6 @@ use Socket;
 our %args = (
 	socktype => Socket::SOCK_RAW,
 	protocol => 254,
-	skip => sub { shift->{af} eq "inet" ? 20 : 0 },
 	client => {
 	    func => sub {
 		my $self = shift;
