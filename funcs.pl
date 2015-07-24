@@ -159,7 +159,7 @@ sub check_logs {
 sub check_inout {
 	my ($c, $s, %args) = @_;
 
-	if ($c && !$args{client}{nocheck}) {
+	if ($args{client} && !$args{client}{nocheck}) {
 		my $out = $args{client}{out} || "Client";
 		$c->loggrep(qr/^>>> $out/) or die "no client output"
 		    unless $args{client}{noout};
@@ -167,7 +167,7 @@ sub check_inout {
 		$c->loggrep(qr/^<<< $in/) or die "no client input"
 		    unless $args{client}{noin};
 	}
-	if ($s && !$args{server}{nocheck}) {
+	if ($args{server} && !$args{server}{nocheck}) {
 		my $out = $args{server}{out} || "Server";
 		$s->loggrep(qr/^>>> $out/) or die "no server output"
 		    unless $args{server}{noout};
