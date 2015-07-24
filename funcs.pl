@@ -73,7 +73,9 @@ sub in_cksum {
 
 use constant IPPROTO_ICMPV6	=> 58;
 use constant ICMP_ECHO		=> 8;
+use constant ICMP_ECHOREPLY	=> 0;
 use constant ICMP6_ECHO_REQUEST	=> 128;
+use constant ICMP6_ECHO_REPLY	=> 129;
 
 my $seq = 0;
 sub write_icmp_echo {
@@ -103,6 +105,7 @@ sub write_icmp_echo {
 
 sub read_icmp_echo {
 	my $self = shift;
+	my $reply = shift;
 	my $af = $self->{af};
 
 	# Raw sockets include the IPv4 header.
@@ -113,6 +116,7 @@ sub read_icmp_echo {
 	}
 
 	my $text = $af eq "inet" ? "ICMP" : "ICMP6";
+	$text .= " reply" if $reply;
 	my $phdr = "";
 	if ($af eq "inet6") {
 		# src, dst, plen, pad, next
@@ -127,7 +131,10 @@ sub read_icmp_echo {
 		$text = "BAD $text CHECKSUM";
 	} else {
 		my($type, $code, $cksum, $id, $seq) = unpack("CCnnn", $icmp);
-		if ($type != ($af eq "inet" ? ICMP_ECHO : ICMP6_ECHO_REQUEST)) {
+		my $t = $reply ?
+		    ($af eq "inet" ? ICMP_ECHOREPLY : ICMP6_ECHO_REPLY) :
+		    ($af eq "inet" ? ICMP_ECHO : ICMP6_ECHO_REQUEST);
+		if ($type != $t) {
 			$text = "BAD $text TYPE";
 		} elsif ($code != 0) {
 			$text = "BAD $text CODE";
