@@ -66,7 +66,7 @@ sub child {
 	my $self = shift;
 
 	print STDERR $self->{up}, "\n";
-	my @opts = split(' ', $ENV{SSH_OPTIONS}) if $ENV{SSH_OPTIONS};
+	my @opts = $ENV{SSH_OPTIONS} ? split(' ', $ENV{SSH_OPTIONS}) : ();
 	my @sudo = $ENV{SUDO} ? ($ENV{SUDO}, "SUDO=$ENV{SUDO}") : ();
 	my $dir = dirname($0);
 	$dir = getcwd() if ! $dir || $dir eq ".";
