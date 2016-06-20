@@ -44,5 +44,5 @@ the second reply reaches the client.  This can only work, if pf
 creates a second outgoing state although all packet use one socket.
 
 The reuse-...  tests run the corresponding args-...-reply and
-args-...-to tests consecutively to check that the pf states to not
-interfere.
+args-...-to and -reply-to tests consecutively to check that the pf
+states to not interfere.

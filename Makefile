@@ -136,6 +136,7 @@ run-regress-${inet}-reuse-${proto}:
 	fi
 .endif
 .endif
+	time ${SUDO} SUDO=${SUDO} perl ${PERLINC} ${PERLPATH}remote.pl ${inet} ${LOCAL_${addr}} ${FAKE_${addr}} ${REMOTE_SSH} `cat client.port` `cat server.port` ${PERLPATH}args-${proto}-reply-to.pl
 .endfor
 
 .endfor
