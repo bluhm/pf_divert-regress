@@ -169,12 +169,14 @@ if ($mode eq "divert") {
 		my $divertport = $port || "port 1";  # XXX bad pf syntax
 		print $pf "pass in log $af proto $protocol ".
 		    "from $ARGV[1] to $ARGV[0] $port ".
-		    "divert-to $s->{listenaddr} $divertport\n";
+		    "divert-to $s->{listenaddr} $divertport ".
+		    "label regress\n";
 	} else {
 		my $port = $protocol =~ /^(tcp|udp)$/ ?
 		    "port $ARGV[2]" : "";
 		print $pf "pass out log $af proto $protocol ".
-		    "from $c->{bindaddr} to $ARGV[1] $port divert-reply\n";
+		    "from $c->{bindaddr} to $ARGV[1] $port divert-reply ".
+		    "label regress\n";
 	}
 	close($pf) or die $! ?
 	    "Close pipe to pf '@cmd' failed: $!" :
