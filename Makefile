@@ -109,7 +109,7 @@ PERLPATH =	${.CURDIR}/
 .for a in ${ARGS}
 run-regress-${inet}-${a:R}: ${a}
 	@echo '\n======== $@ ========'
-	time ${SUDO} SUDO=${SUDO} perl ${PERLINC} ${PERLPATH}remote.pl ${inet} ${LOCAL_${addr}} ${FAKE_${addr}} ${REMOTE_SSH} ${PERLPATH}${a}
+	time ${SUDO} SUDO=${SUDO} perl ${PERLINC} ${PERLPATH}remote.pl -f ${inet} ${LOCAL_${addr}} ${FAKE_${addr}} ${REMOTE_SSH} ${PERLPATH}${a}
 .endfor
 
 .for proto in tcp udp rip

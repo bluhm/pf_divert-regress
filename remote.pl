@@ -26,6 +26,7 @@ BEGIN {
 
 use File::Basename;
 use File::Copy;
+use Getopt::Std;
 use Socket;
 use Socket6;
 
@@ -46,6 +47,7 @@ usage:
 	started automatically with ssh on remotessh.
     remote.pl af localaddr fakeaddr remotessh clientport serverport test-args.pl
 	Run test with local client and server and fixed port, needed for reuse.
+    -f	flush regress states
 EOF
 }
 
@@ -57,6 +59,8 @@ if (@ARGV) {
 	do $test
 	    or die "Do test file $test failed: ", $@ || $!;
 }
+my %opts;
+getopts("f", \%opts) or usage();
 my($af, $domain, $protocol);
 if (@ARGV) {
 	$af = shift;
@@ -114,6 +118,7 @@ if ($local eq "server") {
 if ($mode eq "auto") {
 	$r = Remote->new(
 	    %args,
+	    opts		=> \%opts,
 	    logfile		=> "$remote.log",
 	    testfile		=> $test,
 	    af			=> $af,
@@ -181,9 +186,11 @@ if ($mode eq "divert") {
 	close($pf) or die $! ?
 	    "Close pipe to pf '@cmd' failed: $!" :
 	    "pf '@cmd' failed: $?";
-	@cmd = qw(pfctl -k label -k regress);
-	do { local $> = 0; system(@cmd) }
-	    and die "Execute '@cmd' failed: $!";
+	if ($opts{f}) {
+		@cmd = qw(pfctl -k label -k regress);
+		do { local $> = 0; system(@cmd) }
+		    and die "Execute '@cmd' failed: $!";
+	}
 	print STDERR "Diverted\n";
 
 	$l->run;
