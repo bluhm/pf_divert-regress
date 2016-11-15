@@ -181,6 +181,9 @@ if ($mode eq "divert") {
 	close($pf) or die $! ?
 	    "Close pipe to pf '@cmd' failed: $!" :
 	    "pf '@cmd' failed: $?";
+	@cmd = qw(pfctl -k label -k regress);
+	do { local $> = 0; system(@cmd) }
+	    and die "Execute '@cmd' failed: $!";
 	print STDERR "Diverted\n";
 
 	$l->run;
