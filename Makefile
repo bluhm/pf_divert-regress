@@ -117,6 +117,11 @@ PERLPATH =	${.CURDIR}/
 
 .for  inet addr  in  inet ADDR  inet6 ADDR6
 
+run-regress-${inet}-reuse-rip-to-reply-to:
+	@echo '\n======== $@ ========'
+	@echo 'rip to before reply is broken, it does not remove the state.'
+	@echo DISABLED
+
 .for a in ${ARGS}
 run-regress-${inet}-${a:R}: ${a}
 	@echo '\n======== $@ ========'
