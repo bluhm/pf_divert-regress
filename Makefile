@@ -1,4 +1,4 @@
-#	$OpenBSD: Makefile,v 1.14 2016/11/15 16:00:50 bluhm Exp $
+#	$OpenBSD: Makefile,v 1.15 2016/11/16 16:00:41 bluhm Exp $
 
 # The following ports must be installed for the regression tests:
 # p5-IO-Socket-INET6	object interface for AF_INET and AF_INET6 domain sockets
@@ -63,20 +63,28 @@ TARGETS ?=		inet-args-tcp-to inet6-args-tcp-to \
 			inet-args-icmp-to inet6-args-icmp-to \
 			inet-args-icmp-reply-to inet6-args-icmp-reply-to \
 			inet-args-icmp-reply-reuse inet6-args-icmp-reply-reuse \
+			inet-reuse-tcp-to-to inet6-reuse-tcp-to-to \
 			inet-reuse-tcp-to-reply inet6-reuse-tcp-to-reply \
 			inet-reuse-tcp-reply-to inet6-reuse-tcp-reply-to \
+			inet-reuse-tcp-reply-reply inet6-reuse-tcp-reply-reply \
+			inet-reuse-udp-to-to inet6-reuse-udp-to-to \
 			inet-reuse-udp-to-reply inet6-reuse-udp-to-reply \
 			inet-reuse-udp-to-reply-to inet6-reuse-udp-to-reply-to \
 			inet-reuse-udp-reply-to inet6-reuse-udp-reply-to \
+			inet-reuse-udp-reply-reply inet6-reuse-udp-reply-reply \
 			inet-reuse-udp-reply-reply-to inet6-reuse-udp-reply-reply-to \
 			inet-reuse-udp-reply-to-to inet6-reuse-udp-reply-to-to \
 			inet-reuse-udp-reply-to-reply inet6-reuse-udp-reply-to-reply \
+			inet-reuse-udp-reply-to-reply-to inet6-reuse-udp-reply-to-reply-to \
+			inet-reuse-rip-to-to inet6-reuse-rip-to-to \
 			inet-reuse-rip-to-reply inet6-reuse-rip-to-reply \
 			inet-reuse-rip-to-reply-to inet6-reuse-rip-to-reply-to \
 			inet-reuse-rip-reply-to inet6-reuse-rip-reply-to \
+			inet-reuse-rip-reply-reply inet6-reuse-rip-reply-reply \
 			inet-reuse-rip-reply-reply-to inet6-reuse-rip-reply-reply-to \
 			inet-reuse-rip-reply-to-to inet6-reuse-rip-reply-to-to \
-			inet-reuse-rip-reply-to-reply inet6-reuse-rip-reply-to-reply
+			inet-reuse-rip-reply-to-reply inet6-reuse-rip-reply-to-reply \
+			inet-reuse-rip-reply-to-reply-to inet6-reuse-rip-reply-to-reply-to
 REGRESS_TARGETS =	${TARGETS:S/^/run-regress-/}
 CLEANFILES +=		*.log *.port ktrace.out stamp-*
 
@@ -130,7 +138,7 @@ run-regress-${inet}-${a:R}: ${a}
 
 .for proto in tcp udp rip
 
-.for  first second  in  to reply  to reply-to  reply to  reply reply-to  reply-to to  reply-to reply
+.for  first second  in  to to  to reply  to reply-to  reply to  reply reply  reply reply-to  reply-to to  reply-to reply  reply-to reply-to
 
 run-regress-${inet}-reuse-${proto}-${first}-${second}:
 	@echo '\n======== $@ ========'
