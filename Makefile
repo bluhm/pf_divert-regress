@@ -63,9 +63,20 @@ TARGETS ?=		inet-args-tcp-to inet6-args-tcp-to \
 			inet-args-icmp-to inet6-args-icmp-to \
 			inet-args-icmp-reply-to inet6-args-icmp-reply-to \
 			inet-args-icmp-reply-reuse inet6-args-icmp-reply-reuse \
-			inet-reuse-tcp inet6-reuse-tcp \
-			inet-reuse-udp inet6-reuse-udp \
-			inet-reuse-rip inet6-reuse-rip
+			inet-reuse-tcp-to-reply inet6-reuse-tcp-to-reply \
+			inet-reuse-tcp-reply-to inet6-reuse-tcp-reply-to \
+			inet-reuse-udp-to-reply inet6-reuse-udp-to-reply \
+			inet-reuse-udp-to-reply-to inet6-reuse-udp-to-reply-to \
+			inet-reuse-udp-reply-to inet6-reuse-udp-reply-to \
+			inet-reuse-udp-reply-reply-to inet6-reuse-udp-reply-reply-to \
+			inet-reuse-udp-reply-to-to inet6-reuse-udp-reply-to-to \
+			inet-reuse-udp-reply-to-reply inet6-reuse-udp-reply-to-reply \
+			inet-reuse-rip-to-reply inet6-reuse-rip-to-reply \
+			inet-reuse-rip-to-reply-to inet6-reuse-rip-to-reply-to \
+			inet-reuse-rip-reply-to inet6-reuse-rip-reply-to \
+			inet-reuse-rip-reply-reply-to inet6-reuse-rip-reply-reply-to \
+			inet-reuse-rip-reply-to-to inet6-reuse-rip-reply-to-to \
+			inet-reuse-rip-reply-to-reply inet6-reuse-rip-reply-to-reply
 REGRESS_TARGETS =	${TARGETS:S/^/run-regress-/}
 CLEANFILES +=		*.log *.port ktrace.out stamp-*
 
@@ -104,7 +115,7 @@ PERLPATH =	${.CURDIR}/
 # diverted process is running on the remote machine reachable with
 # ssh.
 
-.for inet addr in inet ADDR inet6 ADDR6
+.for  inet addr  in  inet ADDR  inet6 ADDR6
 
 .for a in ${ARGS}
 run-regress-${inet}-${a:R}: ${a}
@@ -113,17 +124,28 @@ run-regress-${inet}-${a:R}: ${a}
 .endfor
 
 .for proto in tcp udp rip
-run-regress-${inet}-reuse-${proto}:
+
+.for  first second  in  to reply  to reply-to  reply to  reply reply-to  reply-to to  reply-to reply
+
+run-regress-${inet}-reuse-${proto}-${first}-${second}:
 	@echo '\n======== $@ ========'
-	time ${SUDO} SUDO=${SUDO} perl ${PERLINC} ${PERLPATH}remote.pl ${inet} ${LOCAL_${addr}} ${FAKE_${addr}} ${REMOTE_SSH} ${PERLPATH}args-${proto}-reply.pl
+	time ${SUDO} SUDO=${SUDO} perl ${PERLINC} ${PERLPATH}remote.pl -f ${inet} ${LOCAL_${addr}} ${FAKE_${addr}} ${REMOTE_SSH} ${PERLPATH}args-${proto}-${first}.pl
 	sed -n '/^connect peer:/s/.* //p' client.log >client.port
 	sed -n '/^connect sock:/s/.* //p' client.log >server.port
 .if "tcp" == ${proto}
+.if "reply" == ${first}
 	${SUDO} tcpdrop ${LOCAL_${addr}} `cat client.port` ${FAKE_${addr}} `cat server.port`
+.else
+	ssh ${REMOTE_SSH} ${SUDO} tcpdrop ${FAKE_${addr}} `cat client.port` ${LOCAL_${addr}} `cat server.port`
 .endif
-	time ${SUDO} SUDO=${SUDO} perl ${PERLINC} ${PERLPATH}remote.pl ${inet} ${LOCAL_${addr}} ${FAKE_${addr}} ${REMOTE_SSH} `cat client.port` `cat server.port` ${PERLPATH}args-${proto}-to.pl
+.endif
+	time ${SUDO} SUDO=${SUDO} perl ${PERLINC} ${PERLPATH}remote.pl ${inet} ${LOCAL_${addr}} ${FAKE_${addr}} ${REMOTE_SSH} `cat client.port` `cat server.port` ${PERLPATH}args-${proto}-${second}.pl
 .if "tcp" == ${proto}
+.if "reply" == ${second}
+	${SUDO} tcpdrop ${LOCAL_${addr}} `cat server.port` ${FAKE_${addr}} `cat client.port`
+.else
 	ssh ${REMOTE_SSH} ${SUDO} tcpdrop ${FAKE_${addr}} `cat server.port` ${LOCAL_${addr}} `cat client.port`
+.endif
 .if "inet" == ${inet}
 	if ssh ${REMOTE_SSH} ${SUDO} pfctl -ss | \
 	    grep 'all ${proto} ${FAKE_${addr}}:'`cat server.port`' .. ${LOCAL_${addr}}:'`cat client.port`' '; \
@@ -136,8 +158,9 @@ run-regress-${inet}-reuse-${proto}:
 	fi
 .endif
 .endif
-.endfor
 
+.endfor
+.endfor
 .endfor
 
 .PHONY: syntax check-setup
