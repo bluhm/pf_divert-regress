@@ -144,18 +144,11 @@ run-regress-${inet}-reuse-${proto}-${first}-${second}:
 .if "reply" == ${second}
 	${SUDO} tcpdrop ${LOCAL_${addr}} `cat server.port` ${FAKE_${addr}} `cat client.port`
 .else
+	ssh ${REMOTE_SSH} ${SUDO} pfctl -ss | \
+	    egrep 'all ${proto} ${FAKE_${addr}}:?\[?'`cat server.port`\]?' .. ${LOCAL_${addr}}:?\[?'`cat client.port`'\]? '
 	ssh ${REMOTE_SSH} ${SUDO} tcpdrop ${FAKE_${addr}} `cat server.port` ${LOCAL_${addr}} `cat client.port`
-.endif
-.if "inet" == ${inet}
-	if ssh ${REMOTE_SSH} ${SUDO} pfctl -ss | \
-	    grep 'all ${proto} ${FAKE_${addr}}:'`cat server.port`' .. ${LOCAL_${addr}}:'`cat client.port`' '; \
-		then false; \
-	fi
-.else
-	if ssh ${REMOTE_SSH} ${SUDO} pfctl -ss | \
-	    grep 'all ${proto} ${FAKE_${addr}}\['`cat server.port`\]' .. ${LOCAL_${addr}}\['`cat client.port`'\] '; \
-		then false; \
-	fi
+	ssh ${REMOTE_SSH} ${SUDO} pfctl -ss | \
+	    ! egrep 'all ${proto} ${FAKE_${addr}}:?\[?'`cat server.port`\]?' .. ${LOCAL_${addr}}:?\[?'`cat client.port`'\]? '
 .endif
 .endif
 
