@@ -33,6 +33,7 @@ use Socket6;
 use Client;
 use Server;
 use Remote;
+use Packet;
 require 'funcs.pl';
 
 sub usage {
@@ -85,18 +86,19 @@ if (@ARGV == 5 && $mode eq "auto") {
 	usage();
 }
 
-my($c, $l, $r, $s, $logfile);
+my($c, $l, $r, $s, $logfile, $packetlog);
 my $divert	= $args{divert} || "to";
-my $local	= $divert eq "to" ? "client" : "server";
-my $remote	= $divert eq "to" ? "server" : "client";
+my $local	= $divert =~ /to|in/ ? "client" : "server";
+my $remote	= $divert =~ /to|in/ ? "server" : "client";
 if ($mode eq "divert") {
-	$local		= $divert eq "to" ? "server" : "client";
-	$remote		= $divert eq "to" ? "client" : "server";
+	$local		= $divert =~ /to|in/ ? "server" : "client";
+	$remote		= $divert =~ /to|in/ ? "client" : "server";
 	$logfile	= dirname($0)."/remote.log";
+	$packetlog	= dirname($0)."/packet.log";
 }
 my $srcaddr	= $ARGV[0];
 my $dstaddr	= $ARGV[1];
-if ($mode eq "divert" xor $divert eq "reply") {
+if ($mode eq "divert" xor $divert =~ /reply|out/) {
 	($srcaddr, $dstaddr) = ($dstaddr, $srcaddr);
 }
 
@@ -164,6 +166,32 @@ if ($mode eq "divert") {
 	};
 	copy($log, \*STDERR);
 
+	my ($p, $plog);
+	$p = Packet->new(
+	    %args,
+	    %{$args{packet}},
+	    logfile		=> $packetlog,
+	    af			=> $af,
+	    domain		=> $domain,
+	    bindport		=> 666,
+	) if $args{packet};
+
+	if ($p) {
+		open($plog, '<', $p->{logfile})
+		    or die "Remote packet log file open failed: $!";
+		$SIG{__DIE__} = sub {
+			die @_ if $^S;
+			copy($log, \*STDERR);
+			warn @_;
+			exit 255;
+		};
+		copy($plog, \*STDERR);
+		$p->run;
+		copy($plog, \*STDERR);
+		$p->up;
+		copy($plog, \*STDERR);
+	}
+
 	my @cmd = qw(pfctl -a regress -f -);
 	my $pf;
 	do { local $> = 0; open($pf, '|-', @cmd) }
@@ -172,11 +200,14 @@ if ($mode eq "divert") {
 		my $port = $protocol =~ /^(tcp|udp)$/ ?
 		    "port $s->{listenport}" : "";
 		my $divertport = $port || "port 1";  # XXX bad pf syntax
+		my $divertcommand = $divert =~ /packet/ ?
+		    "divert-packet port 666" :
+		    "divert-to $s->{listenaddr} $divertport";
 		print $pf "pass in log $af proto $protocol ".
-		    "from $ARGV[1] to $ARGV[0] $port ".
-		    "divert-to $s->{listenaddr} $divertport ".
+		    "from $ARGV[1] to $ARGV[0] $port $divertcommand ".
 		    "label regress\n";
-	} else {
+	}
+	if ($local eq "client") {
 		my $port = $protocol =~ /^(tcp|udp)$/ ?
 		    "port $ARGV[2]" : "";
 		print $pf "pass out log $af proto $protocol ".
@@ -199,6 +230,12 @@ if ($mode eq "divert") {
 	copy($log, \*STDERR);
 	$l->down;
 	copy($log, \*STDERR);
+
+	if ($p) {
+		copy($plog, \*STDERR);
+		$p->down;
+		copy($plog, \*STDERR);
+	}
 
 	exit;
 }

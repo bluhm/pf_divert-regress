@@ -51,6 +51,8 @@ regress:
 
 # Automatically generate regress targets from test cases in directory.
 
+PERLS =			Client.pm Packet.pm Proc.pm Remote.pm Server.pm \
+			funcs.pl remote.pl
 ARGS !=			cd ${.CURDIR} && ls args-*.pl
 TARGETS ?=		inet-args-tcp-to inet6-args-tcp-to \
 			inet-args-tcp-reply inet6-args-tcp-reply \
@@ -84,7 +86,8 @@ TARGETS ?=		inet-args-tcp-to inet6-args-tcp-to \
 			inet-reuse-rip-reply-reply-to inet6-reuse-rip-reply-reply-to \
 			inet-reuse-rip-reply-to-to inet6-reuse-rip-reply-to-to \
 			inet-reuse-rip-reply-to-reply inet6-reuse-rip-reply-to-reply \
-			inet-reuse-rip-reply-to-reply-to inet6-reuse-rip-reply-to-reply-to
+			inet-reuse-rip-reply-to-reply-to inet6-reuse-rip-reply-to-reply-to \
+			inet-args-udp-packet-in
 REGRESS_TARGETS =	${TARGETS:S/^/run-regress-/}
 CLEANFILES +=		*.log *.port ktrace.out stamp-*
 
@@ -176,7 +179,10 @@ run-regress-${inet}-reuse-${proto}-${first}-${second}:
 # make perl syntax check for all args files
 syntax: stamp-syntax
 
-stamp-syntax: ${ARGS}
+stamp-syntax: ${PERLS} ${ARGS}
+.for p in ${PERLS}
+	@perl -c ${PERLINC} ${PERLPATH}$p
+.endfor
 .for a in ${ARGS}
 	@perl -c ${PERLPATH}$a
 .endfor
