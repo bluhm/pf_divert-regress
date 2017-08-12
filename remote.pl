@@ -182,14 +182,15 @@ if ($mode eq "divert") {
 		$SIG{__DIE__} = sub {
 			die @_ if $^S;
 			copy($log, \*STDERR);
+			copy_prefix(ref $p, $plog, \*STDERR);
 			warn @_;
 			exit 255;
 		};
-		copy($plog, \*STDERR);
+		copy_prefix(ref $p, $plog, \*STDERR);
 		$p->run;
-		copy($plog, \*STDERR);
+		copy_prefix(ref $p, $plog, \*STDERR);
 		$p->up;
-		copy($plog, \*STDERR);
+		copy_prefix(ref $p, $plog, \*STDERR);
 	}
 
 	my @cmd = qw(pfctl -a regress -f -);
@@ -232,9 +233,9 @@ if ($mode eq "divert") {
 	copy($log, \*STDERR);
 
 	if ($p) {
-		copy($plog, \*STDERR);
+		copy_prefix(ref $p, $plog, \*STDERR);
 		$p->down;
-		copy($plog, \*STDERR);
+		copy_prefix(ref $p, $plog, \*STDERR);
 	}
 
 	exit;
@@ -249,3 +250,13 @@ $r->down if $r;
 $s->down if $s;
 
 check_logs($c || $r, $s || $r, %args);
+
+sub copy_prefix {
+	my ($prefix, $src, $dst) = @_;
+
+	local $_;
+	while (defined($_ = <$src>)) {
+		chomp;
+		print $dst "$prefix: $_\n" if length;
+	}
+}
