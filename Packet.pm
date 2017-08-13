@@ -33,12 +33,18 @@ sub new {
 	my $self = Proc::new($class, %args);
 	$self->{domain}
 	    or croak "$class domain not given";
-system("sudo ktrace -i -p $$; sleep 1");
 	my $ds = do { local $> = 0; IO::Socket::INET6->new(
 	    Type	=> Socket::SOCK_RAW,
 	    Proto	=> 258,  # IPPROTO_DIVERT
 	    Domain	=> $self->{domain},
 	) } or die ref($self), " socket failed: $!";
+	my $sa;
+	$sa = pack_sockaddr_in($self->{bindport}, Socket::INADDR_ANY)
+	    if $self->{af} eq "inet";
+	$sa = pack_sockaddr_in6($self->{bindport}, Socket::IN6ADDR_ANY)
+	    if $self->{af} eq "inet6";
+	$ds->bind($sa)
+	    or die ref($self), " bind failed: $!";
 	my $log = $self->{log};
 	print $log "divert sock: ",$ds->sockhost()," ",$ds->sockport(),"\n";
 	$self->{divertaddr} = $ds->sockhost();
