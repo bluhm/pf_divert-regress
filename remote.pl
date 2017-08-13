@@ -246,7 +246,8 @@ $c->run->up if $c;
 $s->up if $s;
 
 $c->down if $c;
-$r->down if $r;
+# remote side has 20 seconds timeout, wait longer than that here
+$r->down(30) if $r;
 $s->down if $s;
 
 check_logs($c || $r, $s || $r, %args);
