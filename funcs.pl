@@ -55,10 +55,10 @@ sub write_datagram {
 		$self->{toport} = $port;
 		print STDERR "send to: $addr $port\n";
 
-		send(STDIN, $out, 0, $to)
+		send(STDOUT, $out, 0, $to)
 		    or die ref($self), " send to failed: $!";
 	} else {
-		send(STDIN, $out, 0)
+		send(STDOUT, $out, 0)
 		    or die ref($self), " send failed: $!";
 	}
 
