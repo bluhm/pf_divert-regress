@@ -133,6 +133,10 @@ run-regress-${inet}-reuse-rip-to-reply-to:
 	@echo 'rip to before reply is broken, it does not remove the state.'
 	@echo DISABLED
 
+run-regress-${inet}-args-udp-packet-in: args-udp-packet-in.pl
+	@echo '\n======== $@ ========'
+	time ${SUDO} SUDO=${SUDO} perl ${PERLINC} ${PERLPATH}remote.pl -f ${inet} ${LOCAL_${addr}} ${REMOTE_${addr}} ${REMOTE_SSH} ${PERLPATH}args-udp-packet-in.pl
+
 .for a in ${ARGS}
 run-regress-${inet}-${a:R}: ${a}
 	@echo '\n======== $@ ========'

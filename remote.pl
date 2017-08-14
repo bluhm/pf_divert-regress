@@ -110,7 +110,8 @@ if ($local eq "server") {
 	    af			=> $af,
 	    domain		=> $domain,
 	    protocol		=> $protocol,
-	    listenaddr		=> $mode ne "divert" ? $ARGV[0] :
+	    listenaddr		=>
+		$mode ne "divert" || $divert =~ /in/ ? $ARGV[0] :
 		$af eq "inet" ? "127.0.0.1" : "::1",
 	    listenport		=> $serverport || $bindport,
 	    srcaddr		=> $srcaddr,

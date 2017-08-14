@@ -202,6 +202,17 @@ sub check_inout {
 		$c->loggrep(qr/^<<< $in/) or die "no client input"
 		    unless $args{client}{noin};
 	}
+	if ($args{packet} && !$args{packet}{nocheck}) {
+		my $out = $args{packet}{out} || "Packet";
+		my $hexout = unpack("H*", $out);
+		$s->loggrep(qr/ >>> .*$hexout/) or die "no packet output"
+		    unless $args{packet}{noout};
+		my $in = $args{packet}{in} || $args{packet}{noin}
+		    or die "no packet input regex";
+		my $hexin = unpack("H*", $in);
+		$s->loggrep(qr/ <<< .*$hexin/) or die "no packet input"
+		    unless $args{packet}{noin};
+	}
 	if ($args{server} && !$args{server}{nocheck}) {
 		my $out = $args{server}{out} || "Server";
 		$s->loggrep(qr/^>>> $out/) or die "no server output"
