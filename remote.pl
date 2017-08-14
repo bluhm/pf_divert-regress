@@ -86,22 +86,23 @@ if (@ARGV == 5 && $mode eq "auto") {
 	usage();
 }
 
-my($c, $l, $r, $s, $logfile, $packetlog);
-my $divert	= $args{divert} || "to";
-my $local	= $divert =~ /to|in/ ? "client" : "server";
-my $remote	= $divert =~ /to|in/ ? "server" : "client";
+my $divert = $args{divert};
+my ($local, $remote) = ("client", "server");
+($local, $remote) = ($remote, $local) if $mode eq "divert";
+($local, $remote) = ($remote, $local) if $divert =~ /reply/;
+($local, $remote) = ($remote, $local) if $divert =~ /out/;
+my ($srcaddr, $dstaddr)	= @ARGV[0,1];
+($srcaddr, $dstaddr) = ($dstaddr, $srcaddr) if $mode eq "divert";
+($srcaddr, $dstaddr) = ($dstaddr, $srcaddr) if $divert =~ /reply/;
+($srcaddr, $dstaddr) = ($dstaddr, $srcaddr) if $divert =~ /out/;
+
+my ($logfile, $packetlog);
 if ($mode eq "divert") {
-	$local		= $divert =~ /to|in/ ? "server" : "client";
-	$remote		= $divert =~ /to|in/ ? "client" : "server";
 	$logfile	= dirname($0)."/remote.log";
 	$packetlog	= dirname($0)."/packet.log";
 }
-my $srcaddr	= $ARGV[0];
-my $dstaddr	= $ARGV[1];
-if ($mode eq "divert" xor $divert =~ /reply|out/) {
-	($srcaddr, $dstaddr) = ($dstaddr, $srcaddr);
-}
 
+my ($c, $l, $r, $s);
 if ($local eq "server") {
 	$l = $s = Server->new(
 	    %args,
@@ -122,7 +123,7 @@ if ($mode eq "auto") {
 	$r = Remote->new(
 	    %args,
 	    opts		=> \%opts,
-	    $args{packet} ? ( down => "Shutdown Packet" ) : (),
+	    down		=> $args{packet} && "Shutdown Packet",
 	    logfile		=> "$remote.log",
 	    testfile		=> $test,
 	    af			=> $af,
