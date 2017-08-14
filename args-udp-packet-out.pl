@@ -10,7 +10,7 @@ our %args = (
 	noin => 1,
     },
     packet => {
-	func => \&read_write_datagram,
+	func => \&read_write_packet,
 	in => "Client",
     },
     server => {

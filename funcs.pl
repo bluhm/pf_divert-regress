@@ -98,7 +98,7 @@ sub read_datagram {
 	}
 }
 
-sub read_write_datagram {
+sub read_write_packet {
 	my $self = shift;
 
 	my $packet;
@@ -108,6 +108,7 @@ sub read_write_datagram {
 
 	$packet =~ s/Client|Server/Packet/;
 	$self->{toaddr} = "127.0.0.1";
+	$self->{toport} = 0;
 	write_datagram($self, $packet);
 	my $hexout = unpack("H*", $packet);
 	print STDERR ">>> $hexout\n";
