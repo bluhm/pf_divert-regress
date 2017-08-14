@@ -111,7 +111,7 @@ if ($local eq "server") {
 	    domain		=> $domain,
 	    protocol		=> $protocol,
 	    listenaddr		=>
-		$mode ne "divert" || $divert =~ /in/ ? $ARGV[0] :
+		$mode ne "divert" || $divert =~ /packet/ ? $ARGV[0] :
 		$af eq "inet" ? "127.0.0.1" : "::1",
 	    listenport		=> $serverport || $bindport,
 	    srcaddr		=> $srcaddr,
@@ -212,8 +212,10 @@ if ($mode eq "divert") {
 	if ($local eq "client") {
 		my $port = $protocol =~ /^(tcp|udp)$/ ?
 		    "port $ARGV[2]" : "";
+		my $divertcommand = $divert =~ /packet/ ?
+		    "divert-packet port 666" : "divert-reply";
 		print $pf "pass out log $af proto $protocol ".
-		    "from $c->{bindaddr} to $ARGV[1] $port divert-reply ".
+		    "from $c->{bindaddr} to $ARGV[1] $port $divertcommand ".
 		    "label regress\n";
 	}
 	close($pf) or die $! ?

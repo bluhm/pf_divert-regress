@@ -87,7 +87,7 @@ TARGETS ?=		inet-args-tcp-to inet6-args-tcp-to \
 			inet-reuse-rip-reply-to-to inet6-reuse-rip-reply-to-to \
 			inet-reuse-rip-reply-to-reply inet6-reuse-rip-reply-to-reply \
 			inet-reuse-rip-reply-to-reply-to inet6-reuse-rip-reply-to-reply-to \
-			inet-args-udp-packet-in
+			inet-args-udp-packet-in inet-args-udp-packet-out
 REGRESS_TARGETS =	${TARGETS:S/^/run-regress-/}
 CLEANFILES +=		*.log *.port ktrace.out stamp-*
 
@@ -133,14 +133,14 @@ run-regress-${inet}-reuse-rip-to-reply-to:
 	@echo 'rip to before reply is broken, it does not remove the state.'
 	@echo DISABLED
 
-run-regress-${inet}-args-udp-packet-in: args-udp-packet-in.pl
-	@echo '\n======== $@ ========'
-	time ${SUDO} SUDO=${SUDO} perl ${PERLINC} ${PERLPATH}remote.pl -f ${inet} ${LOCAL_${addr}} ${REMOTE_${addr}} ${REMOTE_SSH} ${PERLPATH}args-udp-packet-in.pl
-
 .for a in ${ARGS}
 run-regress-${inet}-${a:R}: ${a}
 	@echo '\n======== $@ ========'
+.if ${@:M*-packet-*}
+	time ${SUDO} SUDO=${SUDO} perl ${PERLINC} ${PERLPATH}remote.pl -f ${inet} ${LOCAL_${addr}} ${REMOTE_${addr}} ${REMOTE_SSH} ${PERLPATH}${a}
+.else
 	time ${SUDO} SUDO=${SUDO} perl ${PERLINC} ${PERLPATH}remote.pl -f ${inet} ${LOCAL_${addr}} ${FAKE_${addr}} ${REMOTE_SSH} ${PERLPATH}${a}
+.endif
 .endfor
 
 .for proto in tcp udp rip

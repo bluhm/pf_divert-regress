@@ -1,4 +1,4 @@
-# test divert-packet input rule with udp
+# test divert-packet output rule with udp
 
 use strict;
 use warnings;
@@ -18,5 +18,5 @@ our %args = (
 	in => "Packet",
 	noout => 1,
     },
-    divert => "packet-in",
+    divert => "packet-out",
 );
