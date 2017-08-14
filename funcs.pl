@@ -184,15 +184,15 @@ sub read_icmp_echo {
 ########################################################################
 
 sub check_logs {
-	my ($c, $s, %args) = @_;
+	my ($c, $r, $s, %args) = @_;
 
 	return if $args{nocheck};
 
-	check_inout($c, $s, %args);
+	check_inout($c, $r, $s, %args);
 }
 
 sub check_inout {
-	my ($c, $s, %args) = @_;
+	my ($c, $r, $s, %args) = @_;
 
 	if ($args{client} && !$args{client}{nocheck}) {
 		my $out = $args{client}{out} || "Client";
@@ -203,23 +203,24 @@ sub check_inout {
 		    unless $args{client}{noin};
 	}
 	if ($args{packet} && !$args{packet}{nocheck}) {
-		my $out = $args{packet}{out} || "Packet";
-		my $hexout = unpack("H*", $out);
-		$s->loggrep(qr/ >>> .*$hexout/) or die "no packet output"
-		    unless $args{packet}{noout};
+		my $hex;
 		my $in = $args{packet}{in} || $args{packet}{noin}
 		    or die "no packet input regex";
-		my $hexin = unpack("H*", $in);
-		$s->loggrep(qr/ <<< .*$hexin/) or die "no packet input"
+		$hex = unpack("H*", $in);
+		$r->loggrep(qr/Packet: <<< .*$hex/) or die "no packet input"
 		    unless $args{packet}{noin};
+		my $out = $args{packet}{out} || "Packet";
+		$hex = unpack("H*", $out);
+		$r->loggrep(qr/Packet: >>> .*$hex/) or die "no packet output"
+		    unless $args{packet}{noout};
 	}
 	if ($args{server} && !$args{server}{nocheck}) {
-		my $out = $args{server}{out} || "Server";
-		$s->loggrep(qr/^>>> $out/) or die "no server output"
-		    unless $args{server}{noout};
 		my $in = $args{server}{in} || "Client";
 		$s->loggrep(qr/^<<< $in/) or die "no server input"
 		    unless $args{server}{noin};
+		my $out = $args{server}{out} || "Server";
+		$s->loggrep(qr/^>>> $out/) or die "no server output"
+		    unless $args{server}{noout};
 	}
 }
 

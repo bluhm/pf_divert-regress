@@ -251,7 +251,7 @@ $c->down if $c;
 $r->down(30) if $r;
 $s->down if $s;
 
-check_logs($c || $r, $s || $r, %args);
+check_logs($c || $r, $r, $s || $r, %args);
 
 sub copy_prefix {
 	my ($prefix, $src, $dst) = @_;
