@@ -122,6 +122,7 @@ if ($mode eq "auto") {
 	$r = Remote->new(
 	    %args,
 	    opts		=> \%opts,
+	    $args{packet} ? ( down => "Shutdown Packet" ) : (),
 	    logfile		=> "$remote.log",
 	    testfile		=> $test,
 	    af			=> $af,

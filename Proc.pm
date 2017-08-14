@@ -80,7 +80,7 @@ sub run {
 	print STDERR $self->{up}, "\n";
 	alarm($self->{alarm}) if $self->{alarm};
 	$self->{func}->($self);
-	print STDERR "Shutdown", "\n";
+	print STDERR "Shutdown ", ref($self), "\n";
 
 	IO::Handle::flush(\*STDOUT);
 	IO::Handle::flush(\*STDERR);
