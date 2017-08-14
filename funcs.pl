@@ -98,6 +98,21 @@ sub read_datagram {
 	}
 }
 
+sub read_write_datagram {
+	my $self = shift;
+
+	my $packet;
+	read_datagram($self, \$packet);
+	my $hexin = unpack("H*", $packet);
+	print STDERR "<<< $hexin\n";
+
+	$packet =~ s/Client|Server/Packet/;
+	$self->{toaddr} = "127.0.0.1";
+	write_datagram($self, $packet);
+	my $hexout = unpack("H*", $packet);
+	print STDERR ">>> $hexout\n";
+}
+
 sub in_cksum {
 	my $data = shift;
 	my $sum = 0;
