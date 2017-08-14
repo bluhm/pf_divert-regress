@@ -31,8 +31,8 @@ sub new {
 	my %args = @_;
 	$args{logfile} ||= "client.log";
 	$args{up} ||= "Connected";
-	$args{down} ||= $args{alarm} ? "Alarm" :
-	    "Shutdown|Broken pipe|Connection reset by peer";
+	$args{down} ||= $args{alarm} ? "Alarm $class" :
+	    "Shutdown $class|Broken pipe|Connection reset by peer";
 	my $self = Proc::new($class, %args);
 	$self->{domain}
 	    or croak "$class domain not given";

@@ -98,6 +98,20 @@ sub read_datagram {
 	}
 }
 
+sub write_read_datagram {
+	my $self = shift;
+	write_datagram($self);
+	read_datagram($self);
+}
+
+sub read_write_datagram {
+	my $self = shift;
+	read_datagram($self);
+	$self->{toaddr} = $self->{fromaddr};
+	$self->{toport} = $self->{fromport};
+	write_datagram($self);
+}
+
 sub read_write_packet {
 	my $self = shift;
 
@@ -107,7 +121,8 @@ sub read_write_packet {
 	print STDERR "<<< $hexin\n";
 
 	$packet =~ s/Client|Server/Packet/;
-	$self->{toaddr} = "127.0.0.1";
+	$self->{toaddr} = $self->{fromaddr};
+	#$self->{toaddr} = "127.0.0.1";
 	$self->{toport} = 0;
 	write_datagram($self, $packet);
 	my $hexout = unpack("H*", $packet);

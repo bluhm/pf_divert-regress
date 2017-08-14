@@ -30,6 +30,7 @@ sub new {
 	my %args = @_;
 	$args{logfile} ||= "server.log";
 	$args{up} ||= "Accepted";
+	$args{down} ||= "Shutdown $class";
 	my $self = Proc::new($class, %args);
 	$self->{domain}
 	    or croak "$class domain not given";

@@ -43,7 +43,7 @@ END {
 sub new {
 	my $class = shift;
 	my $self = { @_ };
-	$self->{down} ||= $self->{alarm} ? "Alarm" : "Shutdown";
+	$self->{down} ||= $self->{alarm} ? "Alarm $class" : "Shutdown $class";
 	$self->{func} && ref($self->{func}) eq 'CODE'
 	    or croak "$class func not given";
 	$self->{logfile}
@@ -117,7 +117,7 @@ sub loggrep {
 		if ($self->{alarm} && $kid > 0 &&
 		    WIFSIGNALED($status) && WTERMSIG($status) == 14 ) {
 			# child killed by SIGALRM as expected
-			print {$self->{log}} "Alarm", "\n";
+			print {$self->{log}} "Alarm ", ref($self), "\n";
 		} elsif ($kid > 0 && $status != 0) {
 			# child terminated with failure
 			die ref($self), " child status: $status $code";

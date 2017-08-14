@@ -25,17 +25,23 @@ use Socket6;
 use IO::Socket;
 use IO::Socket::INET6;
 
+use constant IPPROTO_DIVERT => 258;
+use constant IP_DIVERTFL => 0x1022;
+use constant IPPROTO_DIVERT_RESP => 0x1;
+use constant IPPROTO_DIVERT_INIT => 0x2;
+
 sub new {
 	my $class = shift;
 	my %args = @_;
 	$args{logfile} ||= "packet.log";
 	$args{up} ||= "Bound";
+	$args{down} ||= "Shutdown $class";
 	my $self = Proc::new($class, %args);
 	$self->{domain}
 	    or croak "$class domain not given";
 	my $ds = do { local $> = 0; IO::Socket::INET6->new(
 	    Type	=> Socket::SOCK_RAW,
-	    Proto	=> 258,  # IPPROTO_DIVERT
+	    Proto	=> IPPROTO_DIVERT,
 	    Domain	=> $self->{domain},
 	) } or die ref($self), " socket failed: $!";
 	my $sa;
@@ -49,6 +55,13 @@ sub new {
 	print $log "divert sock: ",$ds->sockhost()," ",$ds->sockport(),"\n";
 	$self->{divertaddr} = $ds->sockhost();
 	$self->{divertport} = $ds->sockport();
+	my $divertdir = 0;
+	$divertdir |= IPPROTO_DIVERT_INIT if $self->{divertinit};
+	$divertdir |= IPPROTO_DIVERT_RESP if $self->{divertresp};
+	if ($divertdir) {
+		setsockopt($ds, IPPROTO_IP, IP_DIVERTFL, pack('i', $divertdir))
+		    or die ref($self), " set divert flag failed: $!";
+	}
 	$self->{ds} = $ds;
 	return $self;
 }

@@ -89,12 +89,10 @@ if (@ARGV == 5 && $mode eq "auto") {
 my $divert = $args{divert};
 my ($local, $remote) = ("client", "server");
 ($local, $remote) = ($remote, $local) if $mode eq "divert";
-($local, $remote) = ($remote, $local) if $divert =~ /reply/;
-($local, $remote) = ($remote, $local) if $divert =~ /out/;
+($local, $remote) = ($remote, $local) if $divert =~ /reply|out/;
 my ($srcaddr, $dstaddr)	= @ARGV[0,1];
 ($srcaddr, $dstaddr) = ($dstaddr, $srcaddr) if $mode eq "divert";
-($srcaddr, $dstaddr) = ($dstaddr, $srcaddr) if $divert =~ /reply/;
-($srcaddr, $dstaddr) = ($dstaddr, $srcaddr) if $divert =~ /out/;
+($srcaddr, $dstaddr) = ($dstaddr, $srcaddr) if $divert =~ /reply|out/;
 
 my ($logfile, $packetlog);
 if ($mode eq "divert") {

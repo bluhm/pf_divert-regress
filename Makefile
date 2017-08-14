@@ -87,7 +87,8 @@ TARGETS ?=		inet-args-tcp-to inet6-args-tcp-to \
 			inet-reuse-rip-reply-to-to inet6-reuse-rip-reply-to-to \
 			inet-reuse-rip-reply-to-reply inet6-reuse-rip-reply-to-reply \
 			inet-reuse-rip-reply-to-reply-to inet6-reuse-rip-reply-to-reply-to \
-			inet-args-udp-packet-in inet-args-udp-packet-out
+			inet-args-udp-packet-in inet-args-udp-packet-out \
+			inet-args-udp-packet-in-init
 REGRESS_TARGETS =	${TARGETS:S/^/run-regress-/}
 CLEANFILES +=		*.log *.port ktrace.out stamp-*
 
