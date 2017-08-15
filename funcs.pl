@@ -122,8 +122,7 @@ sub read_write_packet {
 
 	$packet =~ s/Client|Server/Packet/;
 	$self->{toaddr} = $self->{fromaddr};
-	#$self->{toaddr} = "127.0.0.1";
-	$self->{toport} = 0;
+	$self->{toport} = $self->{fromport};
 	write_datagram($self, $packet);
 	my $hexout = unpack("H*", $packet);
 	print STDERR ">>> $hexout\n";
