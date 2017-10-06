@@ -10,7 +10,6 @@ our %args = (
 	in => "Packet",
     },
     packet => {
-	divertresp => 1,  # XXX the directions are totally broken
 	func => \&read_write_packet,
 	in => "Server",
     },

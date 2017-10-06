@@ -9,7 +9,6 @@ our %args = (
 	func => \&write_read_datagram,
     },
     packet => {
-	divertinit => 1,  # XXX the directions are completely broken
 	func => \&read_write_packet,
 	in => "Client",
     },
