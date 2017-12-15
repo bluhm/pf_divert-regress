@@ -103,6 +103,7 @@ if ($mode eq "divert") {
 my ($c, $l, $r, $s);
 if ($local eq "server") {
 	$l = $s = Server->new(
+	    ktrace		=> $ENV{KTRACE},
 	    %args,
 	    %{$args{server}},
 	    logfile		=> $logfile,
@@ -139,6 +140,7 @@ if ($mode eq "auto") {
 }
 if ($local eq "client") {
 	$l = $c = Client->new(
+	    ktrace		=> $ENV{KTRACE},
 	    %args,
 	    %{$args{client}},
 	    logfile		=> $logfile,

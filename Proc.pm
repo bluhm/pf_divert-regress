@@ -80,7 +80,7 @@ sub run {
 
 	if ($self->{ktrace}) {
 		my @cmd = ("ktrace", "-f", $self->{ktracefile}, "-p", $$);
-		system(@cmd)
+		do { local $> = 0; system(@cmd) }
 		    and die ref($self), " system '@cmd' failed: $?";
 	}
 	$self->child();

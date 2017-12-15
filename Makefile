@@ -90,7 +90,7 @@ TARGETS ?=		inet-args-tcp-to inet6-args-tcp-to \
 			inet-args-udp-packet-in inet6-args-udp-packet-in \
 			inet-args-udp-packet-out inet6-args-udp-packet-out
 REGRESS_TARGETS =	${TARGETS:S/^/run-regress-/}
-CLEANFILES +=		*.log *.port ktrace.out stamp-*
+CLEANFILES +=		*.log *.port *.ktrace ktrace.out stamp-*
 
 .MAIN: all
 
@@ -138,9 +138,9 @@ run-regress-${inet}-reuse-rip-to-reply-to:
 run-regress-${inet}-${a:R}: ${a}
 	@echo '\n======== $@ ========'
 .if ${@:M*-packet-*}
-	time ${SUDO} SUDO=${SUDO} perl ${PERLINC} ${PERLPATH}remote.pl -f ${inet} ${LOCAL_${addr}} ${REMOTE_${addr}} ${REMOTE_SSH} ${PERLPATH}${a}
+	time ${SUDO} SUDO=${SUDO} KTRACE=${KTRACE} perl ${PERLINC} ${PERLPATH}remote.pl -f ${inet} ${LOCAL_${addr}} ${REMOTE_${addr}} ${REMOTE_SSH} ${PERLPATH}${a}
 .else
-	time ${SUDO} SUDO=${SUDO} perl ${PERLINC} ${PERLPATH}remote.pl -f ${inet} ${LOCAL_${addr}} ${FAKE_${addr}} ${REMOTE_SSH} ${PERLPATH}${a}
+	time ${SUDO} SUDO=${SUDO} KTRACE=${KTRACE} perl ${PERLINC} ${PERLPATH}remote.pl -f ${inet} ${LOCAL_${addr}} ${FAKE_${addr}} ${REMOTE_SSH} ${PERLPATH}${a}
 .endif
 .endfor
 
@@ -150,7 +150,7 @@ run-regress-${inet}-${a:R}: ${a}
 
 run-regress-${inet}-reuse-${proto}-${first}-${second}:
 	@echo '\n======== $@ ========'
-	time ${SUDO} SUDO=${SUDO} perl ${PERLINC} ${PERLPATH}remote.pl -f ${inet} ${LOCAL_${addr}} ${FAKE_${addr}} ${REMOTE_SSH} ${PERLPATH}args-${proto}-${first}.pl
+	time ${SUDO} SUDO=${SUDO} KTRACE=${KTRACE} perl ${PERLINC} ${PERLPATH}remote.pl -f ${inet} ${LOCAL_${addr}} ${FAKE_${addr}} ${REMOTE_SSH} ${PERLPATH}args-${proto}-${first}.pl
 	sed -n '/^connect peer:/s/.* //p' client.log >client.port
 	sed -n '/^connect sock:/s/.* //p' client.log >server.port
 .if "tcp" == ${proto}
@@ -161,7 +161,7 @@ run-regress-${inet}-reuse-${proto}-${first}-${second}:
 	ssh ${REMOTE_SSH} ${SUDO} tcpdrop ${FAKE_${addr}} `cat client.port` ${LOCAL_${addr}} `cat server.port`
 .endif
 .endif
-	time ${SUDO} SUDO=${SUDO} perl ${PERLINC} ${PERLPATH}remote.pl ${inet} ${LOCAL_${addr}} ${FAKE_${addr}} ${REMOTE_SSH} `cat client.port` `cat server.port` ${PERLPATH}args-${proto}-${second}.pl
+	time ${SUDO} SUDO=${SUDO} KTRACE=${KTRACE} perl ${PERLINC} ${PERLPATH}remote.pl ${inet} ${LOCAL_${addr}} ${FAKE_${addr}} ${REMOTE_SSH} `cat client.port` `cat server.port` ${PERLPATH}args-${proto}-${second}.pl
 .if "tcp" == ${proto}
 .if "reply" == ${second}
 	${SUDO} tcpdrop ${LOCAL_${addr}} `cat server.port` ${FAKE_${addr}} `cat client.port`
