@@ -22,10 +22,12 @@ use parent 'Proc';
 use Carp;
 use Cwd;
 use File::Basename;
+use File::Copy;
 
 sub new {
 	my $class = shift;
 	my %args = @_;
+	$args{ktracefile} ||= "remote.ktrace";
 	$args{logfile} ||= "remote.log";
 	$args{up} ||= "Started";
 	$args{down} ||= "Shutdown";
@@ -63,6 +65,27 @@ sub up {
 	return $self;
 }
 
+sub down {
+	my $self = Proc::down(shift, @_);
+
+	if ($self->{ktracefile}) {
+		my @sshopts = $ENV{SSH_OPTIONS} ?
+		    split(' ', $ENV{SSH_OPTIONS}) : ();
+		my @sudo = $ENV{SUDO} ? $ENV{SUDO} : ();
+		my $dir = dirname($0);
+		$dir = getcwd() if ! $dir || $dir eq ".";
+		my @cmd = ("ssh", "-n", @sshopts, $self->{remotessh},
+		    @sudo, "cat", "$dir/remote.ktrace");
+		my $ktr;
+		do { local $< = $>; open($ktr, '-|', @cmd) }
+		    or die ref($self), " open pipe from '@cmd' failed: $!";
+		copy($ktr, $self->{ktracefile});
+		close($ktr) or die ref($self), $! ?
+		    " close pipe from '@cmd' failed: $!" :
+		    " '@cmd' failed: $?";
+	}
+}
+
 sub child {
 	my $self = shift;
 	my @remoteopts;
@@ -79,9 +102,11 @@ sub child {
 	print STDERR $self->{up}, "\n";
 	my @sshopts = $ENV{SSH_OPTIONS} ? split(' ', $ENV{SSH_OPTIONS}) : ();
 	my @sudo = $ENV{SUDO} ? ($ENV{SUDO}, "SUDO=$ENV{SUDO}") : ();
+	my @ktrace = $ENV{KTRACE} ? "KTRACE=$ENV{KTRACE}" : ();
 	my $dir = dirname($0);
 	$dir = getcwd() if ! $dir || $dir eq ".";
-	my @cmd = ("ssh", "-n", @sshopts, $self->{remotessh}, @sudo, "perl",
+	my @cmd = ("ssh", $self->{remotessh},
+	    @sudo, @ktrace, "perl",
 	    "-I", $dir, "$dir/".basename($0), @remoteopts, $self->{af},
 	    $self->{bindaddr}, $self->{connectaddr}, $self->{connectport},
 	    ($self->{bindport} ? $self->{bindport} : ()),

@@ -94,10 +94,11 @@ my ($srcaddr, $dstaddr)	= @ARGV[0,1];
 ($srcaddr, $dstaddr) = ($dstaddr, $srcaddr) if $mode eq "divert";
 ($srcaddr, $dstaddr) = ($dstaddr, $srcaddr) if $divert =~ /reply|out/;
 
-my ($logfile, $packetlog);
+my ($logfile, $packetlog, $ktracefile);
 if ($mode eq "divert") {
 	$logfile	= dirname($0)."/remote.log";
 	$packetlog	= dirname($0)."/packet.log";
+	$ktracefile	= dirname($0)."/remote.ktrace";
 }
 
 my ($c, $l, $r, $s);
@@ -107,6 +108,7 @@ if ($local eq "server") {
 	    %args,
 	    %{$args{server}},
 	    logfile		=> $logfile,
+	    ktracefile		=> $ktracefile,
 	    af			=> $af,
 	    domain		=> $domain,
 	    protocol		=> $protocol,
@@ -124,6 +126,7 @@ if ($mode eq "auto") {
 	    opts		=> \%opts,
 	    down		=> $args{packet} && "Shutdown Packet",
 	    logfile		=> "$remote.log",
+	    ktracefile		=> "$remote.ktrace",
 	    testfile		=> $test,
 	    af			=> $af,
 	    remotessh		=> $ARGV[2],
@@ -144,6 +147,7 @@ if ($local eq "client") {
 	    %args,
 	    %{$args{client}},
 	    logfile		=> $logfile,
+	    ktracefile		=> $ktracefile,
 	    af			=> $af,
 	    domain		=> $domain,
 	    protocol		=> $protocol,
