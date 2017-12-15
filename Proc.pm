@@ -79,10 +79,11 @@ sub run {
 	    or die ref($self), " dup STDERR failed: $!";
 
 	if ($self->{ktrace}) {
-		my @cmd = ("ktrace", "-f", $self->{ktracefile}, "-p", $$);
+		my @cmd = ("ktrace", "-a", "-f", $self->{ktracefile}, "-p", $$);
 		do { local $> = 0; system(@cmd) }
 		    and die ref($self), " system '@cmd' failed: $?";
 	}
+
 	$self->child();
 	print STDERR $self->{up}, "\n";
 	alarm($self->{alarm}) if $self->{alarm};

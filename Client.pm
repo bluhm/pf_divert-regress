@@ -44,6 +44,12 @@ sub new {
 	$self->{connectport} || $self->{protocol} !~ /^(tcp|udp)$/
 	    or croak "$class connect port not given";
 
+	if ($self->{ktrace}) {
+		my @cmd = ("ktrace", "-f", $self->{ktracefile}, "-p", $$);
+		do { local $> = 0; system(@cmd) }
+		    and die ref($self), " system '@cmd' failed: $?";
+	}
+
 	my $cs;
 	if ($self->{bindany}) {
 		do { local $> = 0; $cs = IO::Socket::INET6->new(
@@ -72,6 +78,12 @@ sub new {
 		$self->{bindaddr} = $cs->sockhost();
 		$self->{bindport} = $cs->sockport();
 		$self->{cs} = $cs;
+	}
+
+	if ($self->{ktrace}) {
+		my @cmd = ("ktrace", "-c", "-f", $self->{ktracefile}, "-p", $$);
+		do { local $> = 0; system(@cmd) }
+		    and die ref($self), " system '@cmd' failed: $?";
 	}
 
 	return $self;

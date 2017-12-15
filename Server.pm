@@ -37,6 +37,13 @@ sub new {
 	    or croak "$class domain not given";
 	$self->{protocol}
 	    or croak "$class protocol not given";
+
+	if ($self->{ktrace}) {
+		my @cmd = ("ktrace", "-f", $self->{ktracefile}, "-p", $$);
+		do { local $> = 0; system(@cmd) }
+		    and die ref($self), " system '@cmd' failed: $?";
+	}
+
 	my $ls = do { local $> = 0; IO::Socket::INET6->new(
 	    Type	=> $self->{socktype},
 	    Proto	=> $self->{protocol},
@@ -70,6 +77,13 @@ sub new {
 	$self->{listenaddr} = $ls->sockhost() unless $self->{listenaddr};
 	$self->{listenport} = $ls->sockport() unless $self->{listenport};
 	$self->{ls} = $ls;
+
+	if ($self->{ktrace}) {
+		my @cmd = ("ktrace", "-c", "-f", $self->{ktracefile}, "-p", $$);
+		do { local $> = 0; system(@cmd) }
+		    and die ref($self), " system '@cmd' failed: $?";
+	}
+
 	return $self;
 }
 
