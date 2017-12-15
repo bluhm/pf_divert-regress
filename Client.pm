@@ -1,6 +1,6 @@
 #	$OpenBSD: Client.pm,v 1.4 2017/08/15 04:11:20 bluhm Exp $
 
-# Copyright (c) 2010-2013 Alexander Bluhm <bluhm@openbsd.org>
+# Copyright (c) 2010-2017 Alexander Bluhm <bluhm@openbsd.org>
 #
 # Permission to use, copy, modify, and distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -29,6 +29,7 @@ use constant SO_BINDANY => 0x1000;
 sub new {
 	my $class = shift;
 	my %args = @_;
+	$args{ktracefile} ||= "client.ktrace";
 	$args{logfile} ||= "client.log";
 	$args{up} ||= "Connected";
 	$args{down} ||= $args{alarm} ? "Alarm $class" :

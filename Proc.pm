@@ -1,6 +1,6 @@
 #	$OpenBSD: Proc.pm,v 1.5 2017/08/15 04:11:20 bluhm Exp $
 
-# Copyright (c) 2010-2014 Alexander Bluhm <bluhm@openbsd.org>
+# Copyright (c) 2010-2017 Alexander Bluhm <bluhm@openbsd.org>
 #
 # Permission to use, copy, modify, and distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -46,6 +46,8 @@ sub new {
 	$self->{down} ||= $self->{alarm} ? "Alarm $class" : "Shutdown $class";
 	$self->{func} && ref($self->{func}) eq 'CODE'
 	    or croak "$class func not given";
+	!$self->{ktrace} || $self->{ktracefile}
+	    or croak "$class ktrace file not given";
 	$self->{logfile}
 	    or croak "$class log file not given";
 	open(my $fh, '>', $self->{logfile})
@@ -76,6 +78,11 @@ sub run {
 	open(STDERR, '>&', $self->{log})
 	    or die ref($self), " dup STDERR failed: $!";
 
+	if ($self->{ktrace}) {
+		my @cmd = ("ktrace", "-f", $self->{ktracefile}, "-p", $$);
+		system(@cmd)
+		    and die ref($self), " system '@cmd' failed: $?";
+	}
 	$self->child();
 	print STDERR $self->{up}, "\n";
 	alarm($self->{alarm}) if $self->{alarm};
