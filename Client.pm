@@ -45,10 +45,8 @@ sub new {
 	    or croak "$class connect port not given";
 
 	if ($self->{ktrace}) {
-		do { local $> = $<; open(my $fh, '>', $self->{ktracefile}) }
-		    or die ref($self),
-		    " create '$self->{ktracefile}' failed: $!";
-		my @cmd = ("ktrace", "-af", $self->{ktracefile}, "-p", $$);
+		unlink $self->{ktracefile};
+		my @cmd = ("ktrace", "-f", $self->{ktracefile}, "-p", $$);
 		do { local $> = 0; system(@cmd) }
 		    and die ref($self), " system '@cmd' failed: $?";
 	}

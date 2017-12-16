@@ -79,6 +79,7 @@ sub down {
 		my $ktr;
 		do { local $< = $>; open($ktr, '-|', @cmd) }
 		    or die ref($self), " open pipe from '@cmd' failed: $!";
+		unlink $self->{ktracefile};
 		copy($ktr, $self->{ktracefile});
 		close($ktr) or die ref($self), $! ?
 		    " close pipe from '@cmd' failed: $!" :
