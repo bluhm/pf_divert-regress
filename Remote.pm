@@ -71,12 +71,12 @@ sub down {
 	if ($ENV{KTRACE}) {
 		my @sshopts = $ENV{SSH_OPTIONS} ?
 		    split(' ', $ENV{SSH_OPTIONS}) : ();
-		my @sudo = $ENV{SUDO} ? $ENV{SUDO} : ();
 		my $dir = dirname($0);
 		$dir = getcwd() if ! $dir || $dir eq ".";
-		my @cmd = ("ssh", "-n", @sshopts, $self->{remotessh},
-		    @sudo, "cat", "$dir/remote.ktrace");
 		my $ktr;
+
+		my @cmd = ("ssh", "-n", @sshopts, $self->{remotessh},
+		    "cat", "$dir/remote.ktrace");
 		do { local $< = $>; open($ktr, '-|', @cmd) }
 		    or die ref($self), " open pipe from '@cmd' failed: $!";
 		unlink $self->{ktracefile};
@@ -84,6 +84,19 @@ sub down {
 		close($ktr) or die ref($self), $! ?
 		    " close pipe from '@cmd' failed: $!" :
 		    " '@cmd' failed: $?";
+
+		if ($self->{packet}) {
+			@cmd = ("ssh", "-n", @sshopts, $self->{remotessh},
+			    "cat", "$dir/packet.ktrace");
+			do { local $< = $>; open($ktr, '-|', @cmd) }
+			    or die ref($self),
+			    " open pipe from '@cmd' failed: $!";
+			unlink "packet.ktrace";
+			copy($ktr, "packet.ktrace");
+			close($ktr) or die ref($self), $! ?
+			    " close pipe from '@cmd' failed: $!" :
+			    " '@cmd' failed: $?";
+		}
 	}
 }
 

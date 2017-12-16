@@ -94,11 +94,12 @@ my ($srcaddr, $dstaddr)	= @ARGV[0,1];
 ($srcaddr, $dstaddr) = ($dstaddr, $srcaddr) if $mode eq "divert";
 ($srcaddr, $dstaddr) = ($dstaddr, $srcaddr) if $divert =~ /reply|out/;
 
-my ($logfile, $packetlog, $ktracefile);
+my ($logfile, $ktracefile, $packetlog, $packetktrace);
 if ($mode eq "divert") {
 	$logfile	= dirname($0)."/remote.log";
-	$packetlog	= dirname($0)."/packet.log";
 	$ktracefile	= dirname($0)."/remote.ktrace";
+	$packetlog	= dirname($0)."/packet.log";
+	$packetktrace	= dirname($0)."/packet.ktrace";
 }
 
 my ($c, $l, $r, $s);
@@ -175,9 +176,11 @@ if ($mode eq "divert") {
 
 	my ($p, $plog);
 	$p = Packet->new(
+	    ktrace		=> $ENV{KTRACE},
 	    %args,
 	    %{$args{packet}},
 	    logfile		=> $packetlog,
+	    ktracefile		=> $packetktrace,
 	    af			=> $af,
 	    domain		=> $domain,
 	    bindport		=> 666,

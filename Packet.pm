@@ -30,12 +30,21 @@ use constant IPPROTO_DIVERT => 258;
 sub new {
 	my $class = shift;
 	my %args = @_;
+	$args{ktracefile} ||= "packet.ktrace";
 	$args{logfile} ||= "packet.log";
 	$args{up} ||= "Bound";
 	$args{down} ||= "Shutdown $class";
 	my $self = Proc::new($class, %args);
 	$self->{domain}
 	    or croak "$class domain not given";
+
+	if ($self->{ktrace}) {
+		unlink $self->{ktracefile};
+		my @cmd = ("ktrace", "-f", $self->{ktracefile}, "-p", $$);
+		do { local $> = 0; system(@cmd) }
+		    and die ref($self), " system '@cmd' failed: $?";
+	}
+
 	my $ds = do { local $> = 0; IO::Socket::INET6->new(
 	    Type	=> Socket::SOCK_RAW,
 	    Proto	=> IPPROTO_DIVERT,
@@ -53,6 +62,13 @@ sub new {
 	$self->{divertaddr} = $ds->sockhost();
 	$self->{divertport} = $ds->sockport();
 	$self->{ds} = $ds;
+
+	if ($self->{ktrace}) {
+		my @cmd = ("ktrace", "-c", "-f", $self->{ktracefile}, "-p", $$);
+		do { local $> = 0; system(@cmd) }
+		    and die ref($self), " system '@cmd' failed: $?";
+	}
+
 	return $self;
 }
 
