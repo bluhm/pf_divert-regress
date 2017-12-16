@@ -79,7 +79,7 @@ sub run {
 	    or die ref($self), " dup STDERR failed: $!";
 
 	if ($self->{ktrace}) {
-		my @cmd = ("ktrace", "-a", "-f", $self->{ktracefile}, "-p", $$);
+		my @cmd = ("ktrace", "-af", $self->{ktracefile}, "-p", $$);
 		do { local $> = 0; system(@cmd) }
 		    and die ref($self), " system '@cmd' failed: $?";
 	}
