@@ -82,6 +82,10 @@ sub run {
 		my @cmd = ("ktrace", "-af", $self->{ktracefile}, "-p", $$);
 		do { local $> = 0; system(@cmd) }
 		    and die ref($self), " system '@cmd' failed: $?";
+		my $uid = $>;
+		do { local $> = 0; chown $uid, -1, $self->{ktracefile} }
+		    or die ref($self),
+		    " chown $uid '$self->{ktracefile}' failed: $?";
 	}
 
 	$self->child();
