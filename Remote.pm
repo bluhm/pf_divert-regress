@@ -68,7 +68,7 @@ sub up {
 sub down {
 	my $self = Proc::down(shift, @_);
 
-	if ($self->{ktracefile}) {
+	if ($ENV{KTRACE}) {
 		my @sshopts = $ENV{SSH_OPTIONS} ?
 		    split(' ', $ENV{SSH_OPTIONS}) : ();
 		my @sudo = $ENV{SUDO} ? $ENV{SUDO} : ();
