@@ -98,6 +98,7 @@ sub down {
 			    " '@cmd' failed: $?";
 		}
 	}
+	return $self;
 }
 
 sub child {
