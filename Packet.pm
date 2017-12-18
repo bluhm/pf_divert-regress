@@ -1,4 +1,4 @@
-#	$OpenBSD: Packet.pm,v 1.3 2017/10/09 17:31:40 bluhm Exp $
+#	$OpenBSD: Packet.pm,v 1.4 2017/12/18 17:01:27 bluhm Exp $
 
 # Copyright (c) 2010-2017 Alexander Bluhm <bluhm@openbsd.org>
 #
