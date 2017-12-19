@@ -1,5 +1,5 @@
 # test divert-to with udp
-# create a divert-to rule on the remote machine
+# create a divert-to in rule on the remote machine
 # client sends a UDP packet from the local machine
 # server receives the UDP packet at the remote machine
 
