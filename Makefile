@@ -163,6 +163,15 @@ run-regress-${inet}-reuse-${proto}-${first}-${second}:
 	    ${PERLPATH}args-${proto}-${first}.pl
 	sed -n '/^connect peer:/s/.* //p' client.log >client.port
 	sed -n '/^connect sock:/s/.* //p' client.log >server.port
+.if "to" == ${first}
+.if "rip" == ${proto}
+	ssh ${REMOTE_SSH} ${SUDO} pfctl -ss | \
+	    egrep 'all 254 ${FAKE_${addr}} .. ${LOCAL_${addr}} '
+.else
+	ssh ${REMOTE_SSH} ${SUDO} pfctl -ss | \
+	    egrep 'all ${proto} ${FAKE_${addr}}:?\[?'`cat client.port`\]?' .. ${LOCAL_${addr}}:?\[?'`cat server.port`'\]? '
+.endif
+.endif
 .if "tcp" == ${proto}
 .if "reply" == ${first}
 	${SUDO} tcpdrop \
@@ -194,6 +203,15 @@ run-regress-${inet}-reuse-${proto}-${first}-${second}:
 	    ${LOCAL_${addr}} `cat client.port`
 	ssh ${REMOTE_SSH} ${SUDO} pfctl -ss | \
 	    ! egrep 'all ${proto} ${FAKE_${addr}}:?\[?'`cat server.port`\]?' .. ${LOCAL_${addr}}:?\[?'`cat client.port`'\]? '
+.endif
+.endif
+.if "reply" == ${second}
+.if "rip" == ${proto}
+	ssh ${REMOTE_SSH} ${SUDO} pfctl -ss | \
+	    ! egrep 'all $254 ${FAKE_${addr}} .. ${LOCAL_${addr}} '
+.else
+	ssh ${REMOTE_SSH} ${SUDO} pfctl -ss | \
+	    ! egrep 'all ${proto} ${FAKE_${addr}}:?\[?'`cat client.port`\]?' .. ${LOCAL_${addr}}:?\[?'`cat server.port`'\]? '
 .endif
 .endif
 
