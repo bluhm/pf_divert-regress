@@ -226,9 +226,9 @@ run-regress-${inet}-reuse-${proto}-${first}-${second}:
 .endif
 .endif
 .if "reply" == ${second} || "reply-to" == ${second}
-	# all states must have disappeared when the sockets were closed
+	# all states must have disappeared when connected sockets were closed
 	ssh ${REMOTE_SSH} ${SUDO} pfctl -ss | \
-	    ! egrep ' ${FAKE_${addr}}[][0-9:]* .. ${LOCAL_${addr}}[][0-9:]* '
+	    ! egrep ' (tcp|udp|254) (${FAKE_${addr}}|${REMOTE_${addr}})[][0-9:]* .. ${LOCAL_${addr}}[][0-9:]* '
 .endif
 
 .endfor
