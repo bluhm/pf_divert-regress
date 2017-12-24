@@ -195,8 +195,6 @@ run-regress-${inet}-reuse-${proto}-${first}-${second}:
 	ssh ${REMOTE_SSH} ${SUDO} tcpdrop \
 	    ${FAKE_${addr}} `cat client.port` \
 	    ${LOCAL_${addr}} `cat server.port`
-.endif
-.if "to" == ${first}
 	# divert-to state disappeared when the tcp socket was dropped
 	ssh ${REMOTE_SSH} ${SUDO} pfctl -ss | ! \
 	    egrep 'all ${proto} ${FAKE_${addr}}:?\[?'`cat client.port`\]?' .. ${LOCAL_${addr}}:?\[?'`cat server.port`'\]? '
@@ -208,9 +206,9 @@ run-regress-${inet}-reuse-${proto}-${first}-${second}:
 	    ${LOCAL_${addr}} ${FAKE_${addr}} ${REMOTE_SSH} \
 	    `cat client.port` `cat server.port` \
 	    ${PERLPATH}args-${proto}-${second}.pl
-	# states must have disappeared when connected sockets were closed
+	# states must disappear after connected socket has been closed
 	ssh ${REMOTE_SSH} ${SUDO} pfctl -ss | ${STATE_EXIST_${second}} \
-	    egrep ' (tcp|udp|254) (${FAKE_${addr}}|${REMOTE_${addr}})[][0-9:]* .. ${LOCAL_${addr}}[][0-9:]* '
+	    egrep ' (tcp|udp|254) ${FAKE_${addr}}[][0-9:]* .. ${LOCAL_${addr}}[][0-9:]* '
 .if "tcp" == ${proto}
 .if "reply" == ${second} || "reply-to" == ${second}
 	# drop client tcp socket still in time wait to clean up
