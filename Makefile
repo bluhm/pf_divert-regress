@@ -172,7 +172,7 @@ run-regress-${inet}-reuse-${proto}-${first}-${second}:
 	    egrep 'all ${proto} ${FAKE_${addr}}:?\[?'`cat client.port`\]?' .. ${LOCAL_${addr}}:?\[?'`cat server.port`'\]? '
 .endif
 .endif
-.if "reply" == ${first}
+.if "reply" == ${first} || "reply-to" == ${first}
 .if "rip" == ${proto}
 	ssh ${REMOTE_SSH} ${SUDO} pfctl -ss | \
 	    ! egrep 'all 254 ${FAKE_${addr}} .. ${LOCAL_${addr}} '
@@ -182,7 +182,7 @@ run-regress-${inet}-reuse-${proto}-${first}-${second}:
 .endif
 .endif
 .if "tcp" == ${proto}
-.if "reply" == ${first}
+.if "reply" == ${first} || "reply-to" == ${first}
 	${SUDO} tcpdrop \
 	    ${LOCAL_${addr}} `cat client.port` \
 	    ${FAKE_${addr}} `cat server.port`
@@ -199,7 +199,7 @@ run-regress-${inet}-reuse-${proto}-${first}-${second}:
 	    `cat client.port` `cat server.port` \
 	    ${PERLPATH}args-${proto}-${second}.pl
 .if "tcp" == ${proto}
-.if "reply" == ${second}
+.if "reply" == ${second} || "reply-to" == ${second}
 	${SUDO} tcpdrop \
 	    ${LOCAL_${addr}} `cat server.port` \
 	    ${FAKE_${addr}} `cat client.port`
@@ -214,7 +214,7 @@ run-regress-${inet}-reuse-${proto}-${first}-${second}:
 	    ! egrep 'all ${proto} ${FAKE_${addr}}:?\[?'`cat server.port`\]?' .. ${LOCAL_${addr}}:?\[?'`cat client.port`'\]? '
 .endif
 .endif
-.if "reply" == ${second}
+.if "reply" == ${second} || "reply-to" == ${second}
 .if "rip" == ${proto}
 	ssh ${REMOTE_SSH} ${SUDO} pfctl -ss | \
 	    ! egrep 'all 254 ${FAKE_${addr}} .. ${LOCAL_${addr}} '
