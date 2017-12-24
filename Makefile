@@ -227,13 +227,8 @@ run-regress-${inet}-reuse-${proto}-${first}-${second}:
 .endif
 .if "reply" == ${second} || "reply-to" == ${second}
 	# all states must have disappeared when the sockets were closed
-.if "rip" == ${proto}
 	ssh ${REMOTE_SSH} ${SUDO} pfctl -ss | \
-	    ! egrep 'all 254 ${FAKE_${addr}} .. ${LOCAL_${addr}} '
-.else
-	ssh ${REMOTE_SSH} ${SUDO} pfctl -ss | \
-	    ! egrep 'all ${proto} ${FAKE_${addr}}:?\[?'`cat client.port`\]?' .. ${LOCAL_${addr}}:?\[?'`cat server.port`'\]? '
-.endif
+	    ! egrep ' ${FAKE_${addr}}[][0-9:]* .. ${LOCAL_${addr}}[][0-9:]* '
 .endif
 
 .endfor
