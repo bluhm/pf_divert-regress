@@ -181,6 +181,9 @@ run-regress-${inet}-reuse-${proto}-${first}-${second}:
 	    ${LOCAL_${addr}} `cat client.port` \
 	    ${FAKE_${addr}} `cat server.port`
 .elif "to" == ${first}
+	# tcp socket is in time wait so state must still exist
+	ssh ${REMOTE_SSH} ${SUDO} pfctl -ss | \
+	    egrep 'all ${proto} ${FAKE_${addr}}:?\[?'`cat client.port`\]?' .. ${LOCAL_${addr}}:?\[?'`cat server.port`'\]? '
 	ssh ${REMOTE_SSH} ${SUDO} tcpdrop \
 	    ${FAKE_${addr}} `cat client.port` \
 	    ${LOCAL_${addr}} `cat server.port`
