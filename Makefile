@@ -180,7 +180,7 @@ run-regress-${inet}-reuse-${proto}-${first}-${second}:
 	${SUDO} tcpdrop \
 	    ${LOCAL_${addr}} `cat client.port` \
 	    ${FAKE_${addr}} `cat server.port`
-.elif "to" == ${first}
+.else # "to" == ${first}
 	# tcp socket is in time wait so state must still exist
 	ssh ${REMOTE_SSH} ${SUDO} pfctl -ss | \
 	    egrep 'all ${proto} ${FAKE_${addr}}:?\[?'`cat client.port`\]?' .. ${LOCAL_${addr}}:?\[?'`cat server.port`'\]? '
@@ -215,7 +215,7 @@ run-regress-${inet}-reuse-${proto}-${first}-${second}:
 	${SUDO} tcpdrop \
 	    ${LOCAL_${addr}} `cat server.port` \
 	    ${FAKE_${addr}} `cat client.port`
-.elif "to" == ${second}
+.else # "to" == ${second}
 	# dropping the server tcp socket in time wait must remove the state
 	ssh ${REMOTE_SSH} ${SUDO} pfctl -ss | \
 	    egrep 'all ${proto} ${FAKE_${addr}}:?\[?'`cat server.port`\]?' .. ${LOCAL_${addr}}:?\[?'`cat client.port`'\]? '
