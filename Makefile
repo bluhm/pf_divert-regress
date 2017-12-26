@@ -177,21 +177,15 @@ run-regress-${inet}-reuse-${proto}-${first}-${second}:
 .else
 	# divert-reply state has disappeared when the connected socket closed
 .endif
-.if "rip" == ${proto}
 	ssh ${REMOTE_SSH} ${SUDO} pfctl -ss | ${STATE_EXIST_${first}} \
-	    egrep 'all 254 ${FAKE_${addr}} .. ${LOCAL_${addr}} '
-.else
-	ssh ${REMOTE_SSH} ${SUDO} pfctl -ss | ${STATE_EXIST_${first}} \
-	    egrep 'all ${proto} ${FAKE_${addr}}:?\[?'`cat client.port`\]?' .. ${LOCAL_${addr}}:?\[?'`cat server.port`'\]? '
-.endif
+	    egrep ' (tcp|udp|254) ${FAKE_${addr}}[][0-9:]* .. ${LOCAL_${addr}}[][0-9:]* '
 .if "tcp" == ${proto}
 	# drop client tcp socket still in time wait to allow reuse
 .if "reply" == ${first} || "reply-to" == ${first}
 	${SUDO} tcpdrop \
 	    ${LOCAL_${addr}} `cat client.port` \
 	    ${FAKE_${addr}} `cat server.port`
-.endif
-.if "to" == ${first}
+.elif "to" == ${first}
 	ssh ${REMOTE_SSH} ${SUDO} tcpdrop \
 	    ${FAKE_${addr}} `cat client.port` \
 	    ${LOCAL_${addr}} `cat server.port`
@@ -215,8 +209,7 @@ run-regress-${inet}-reuse-${proto}-${first}-${second}:
 	${SUDO} tcpdrop \
 	    ${LOCAL_${addr}} `cat server.port` \
 	    ${FAKE_${addr}} `cat client.port`
-.endif
-.if "to" == ${second}
+.elif "to" == ${second}
 	# dropping the server tcp socket in time wait must remove the state
 	ssh ${REMOTE_SSH} ${SUDO} pfctl -ss | \
 	    egrep 'all ${proto} ${FAKE_${addr}}:?\[?'`cat server.port`\]?' .. ${LOCAL_${addr}}:?\[?'`cat client.port`'\]? '
